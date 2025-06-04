@@ -1,19 +1,29 @@
 {
 	"name": "bunllm",
 	"version": "0.1.0",
-	"description": "A CLI tool built with Bun",
-	"module": "index.ts",
+	"description": "A CLI tool that helps you add LLM documentation to your project based on your package.json dependencies",
 	"type": "module",
 	"main": "index.ts",
 	"bin": {
 		"bunllm": "./index.ts"
 	},
+	"files": [
+		"index.ts",
+		"docs"
+	],
 	"scripts": {
-		"start": "bun run index.ts",
-		"build": "bun build ./index.ts --outdir ./dist"
+		"start": "bun run index.ts"
 	},
-	"keywords": ["bun", "cli", "typescript"],
-	"author": "",
+	"keywords": [
+		"bun",
+		"cli",
+		"typescript",
+		"llm",
+		"ai",
+		"documentation",
+		"cursor"
+	],
+	"author": "Bjarne Verdonck",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/bun": "latest"
@@ -22,7 +32,17 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
-		"@inquirer/prompts": "^3.3.0",
-		"hono": "^4.7.11"
-	}
+		"@inquirer/prompts": "^3.3.0"
+	},
+	"engines": {
+		"bun": ">=1.0.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bdevwebsolutions/bunllm.git"
+	},
+	"bugs": {
+		"url": "https://github.com/bdevwebsolutions/bunllm/issues"
+	},
+	"homepage": "https://github.com/bdevwebsolutions/bunllm#readme"
 }
