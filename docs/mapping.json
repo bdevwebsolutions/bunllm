@@ -1,0 +1,4 @@
+{
+  "hono":{ "full": "hono-full.txt", "tiny": "hono-tiny.txt" },
+  "typescript": {"full": "typescript-full.txt", "tiny": "typescript-tiny.txt"}
+} 
