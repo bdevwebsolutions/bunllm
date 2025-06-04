@@ -1,5 +1,7 @@
 # BunLLM
 
+!! NOT TESTED WITH NODE ONLY BUNX !!
+
 A CLI tool that helps you add LLM documentation to your project based on your package.json dependencies. This tool makes it easy to provide AI tools (like Cursor) with relevant documentation about your project's dependencies.
 
 ## Purpose
@@ -25,6 +27,7 @@ bunx bunllm
 
 1. Navigate to your project directory (the one containing your package.json)
 2. Run the tool:
+
 ```bash
 bunllm
 ```
@@ -38,6 +41,7 @@ bunllm
 ## Documentation Structure
 
 The documentation is stored in the following structure:
+
 ```
 docs/
   ├── mapping.json    # Maps packages to their documentation files
@@ -46,12 +50,13 @@ docs/
 ```
 
 The `mapping.json` file looks like this:
+
 ```json
 {
-  "package-name": {
-    "full": "package-full.txt",
-    "tiny": "package-tiny.txt"
-  }
+	"package-name": {
+		"full": "package-full.txt",
+		"tiny": "package-tiny.txt"
+	}
 }
 ```
 
