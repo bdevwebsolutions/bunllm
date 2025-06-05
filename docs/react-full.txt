@@ -1,0 +1,1587 @@
+---
+
+# React Fundamentals: A Comprehensive Reference for LLMs
+
+This document provides a structured overview of core React concepts, APIs, and best practices. It's designed to serve as a comprehensive reference for Language Models (LLMs) to answer questions, generate code, and understand React-related topics.
+
+---
+
+## Table of Contents
+
+1.  [Introduction to React](#introduction-to-react)
+2.  [Core Concepts](#core-concepts)
+    *   [Components](#components)
+    *   [JSX](#jsx)
+    *   [Props](#props)
+    *   [State](#state)
+    *   [Lifecycle](#lifecycle)
+    *   [Virtual DOM](#virtual-dom)
+    *   [Reconciliation](#reconciliation)
+    *   [Unidirectional Data Flow](#unidirectional-data-flow)
+3.  [Hooks](#hooks)
+    *   [`useState`](#usestate)
+    *   [`useEffect`](#useeffect)
+    *   [`useContext`](#useusecontext)
+    *   [`useRef`](#useref)
+    *   [`useReducer`](#usereducer)
+    *   [`useCallback`](#usecallback)
+    *   [`useMemo`](#usememo)
+4.  [Styling in React](#styling-in-react)
+    *   [Inline Styles](#inline-styles)
+    *   [CSS Modules](#css-modules)
+    *   [Styled Components](#styled-components)
+    *   [Sass/Less](#sassless)
+5.  [Event Handling](#event-handling)
+6.  [Conditional Rendering](#conditional-rendering)
+7.  [List Rendering](#list-rendering)
+8.  [Forms](#forms)
+    *   [Controlled Components](#controlled-components)
+    *   [Uncontrolled Components](#uncontrolled-components)
+9.  [Context API](#context-api)
+10. [Error Boundaries](#error-boundaries)
+11. [Portals](#portals)
+12. [Fragments](#fragments)
+13. [Higher-Order Components (HOCs)](#higher-order-components-hocs)
+14. [Render Props](#render-props)
+15. [Performance Optimization](#performance-optimization)
+    *   [`React.memo`](#reactmemo)
+    *   [`useCallback` and `useMemo`](#usecallback-and-usememo-1)
+    *   [Lazy Loading / Code Splitting](#lazy-loading--code-splitting)
+    *   [Profiler](#profiler)
+16. [Testing React Applications](#testing-react-applications)
+    *   [Unit Testing](#unit-testing)
+    *   [Integration Testing](#integration-testing)
+    *   [End-to-End Testing](#end-to-end-testing)
+17. [React Router](#react-router)
+18. [State Management Libraries (Brief Mention)](#state-management-libraries-brief-mention)
+    *   [Redux](#redux)
+    *   [MobX](#mobx)
+    *   [Zustand](#zustand)
+    *   [Jotai](#jotai)
+19. [Next.js (Brief Mention)](#nextjs-brief-mention)
+20. [TypeScript with React](#typescript-with-react)
+21. [Strict Mode](#strict-mode)
+
+---
+
+## 1. Introduction to React
+
+React is a JavaScript library for building user interfaces, developed by Facebook. It allows developers to create reusable UI components and manage their state efficiently.
+
+*   **Declarative:** React makes it easier to create interactive UIs. You describe what you want to render, and React takes care of updating the DOM.
+*   **Component-Based:** UI is broken down into encapsulated components, each managing its own state.
+*   **Learn Once, Write Anywhere:** React can be used for web applications (React DOM), mobile applications (React Native), and even desktop applications (Electron with React).
+
+---
+
+## 2. Core Concepts
+
+### Components
+
+The fundamental building blocks of any React application. Components are isolated, reusable pieces of UI.
+
+*   **Functional Components:**
+    *   Simple JavaScript functions that return JSX.
+    *   Preferred for modern React applications, especially with Hooks.
+
+    ```javascript
+    function WelcomeMessage(props) {
+      return <h1>Hello, {props.name}!</h1>;
+    }
+    ```
+
+*   **Class Components (Legacy):**
+    *   ES6 classes that extend `React.Component`.
+    *   Have their own `state` and lifecycle methods.
+    *   Less common in new development.
+
+    ```javascript
+    import React from "react";
+
+    class WelcomeMessageClass extends React.Component {
+      render() {
+        return <h1>Hello, {this.props.name}!</h1>;
+      }
+    }
+    ```
+
+### JSX
+
+JavaScript XML. A syntax extension for JavaScript that allows you to write HTML-like code within your JavaScript files. It is transpiled into `React.createElement()` calls.
+
+*   **Rules:**
+    *   Must return a single root element (or use `React.Fragment`).
+    *   Use `className` instead of `class` for CSS classes.
+    *   Use `htmlFor` instead of `for` for form labels.
+    *   CamelCase for HTML attributes (e.g., `onClick`, `tabIndex`).
+    *   Embed JavaScript expressions with curly braces `{}`.
+
+    ```jsx
+    const name = "World";
+    const element = <p className="greeting">Hello, {name}!</p>;
+    ```
+
+### Props
+
+Properties. A mechanism for passing data from parent components to child components. Props are read-only and immutable within the child component.
+
+*   **Syntax:**
+    ```jsx
+    // Parent component
+    function App() {
+      return <Greeting name="Alice" />;
+    }
+
+    // Child component
+    function Greeting(props) {
+      return <p>Hello, {props.name}!</p>;
+    }
+    ```
+
+*   **Destructuring Props:**
+    ```jsx
+    function Greeting({ name }) {
+      return <p>Hello, {name}!</p>;
+    }
+    ```
+
+*   **`children` Prop:**
+    *   Used to pass content directly within the opening and closing tags of a component.
+
+    ```jsx
+    // Parent
+    function App() {
+      return <Card title="My Card">This is the content inside the card.</Card>;
+    }
+
+    // Child
+    function Card(props) {
+      return (
+        <div className="card">
+          <h2>{props.title}</h2>
+          {props.children}
+        </div>
+      );
+    }
+    ```
+
+### State
+
+An object that holds data that may change over time and affects the rendering of a component. State is mutable and managed within the component itself.
+
+*   **Functional Components (with `useState` Hook):**
+    ```javascript
+    import React, { useState } from "react";
+
+    function Counter() {
+      const [count, setCount] = useState(0); // [currentState, setStateFunction]
+
+      const increment = () => {
+        setCount(count + 1); // Or setCount((prevCount) => prevCount + 1); for functional updates
+      };
+
+      return (
+        <div>
+          <p>Count: {count}</p>
+          <button onClick={increment}>Increment</button>
+        </div>
+      );
+    }
+    ```
+
+*   **Class Components (Legacy):**
+    ```javascript
+    import React from "react";
+
+    class CounterClass extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          count: 0,
+        };
+      }
+
+      increment = () => {
+        this.setState((prevState) => ({
+          count: prevState.count + 1,
+        }));
+      };
+
+      render() {
+        return (
+          <div>
+            <p>Count: {this.state.count}</p>
+            <button onClick={this.increment}>Increment</button>
+          </div>
+        );
+      }
+    }
+    ```
+
+### Lifecycle (Class Components - Legacy)
+
+A series of methods that are called at different stages of a component's existence: mounting, updating, and unmounting.
+
+*   **Mounting (Component Creation & Insertion into DOM):**
+    *   `constructor()`
+    *   `static getDerivedStateFromProps()`
+    *   `render()`
+    *   `componentDidMount()`: Ideal for data fetching, subscriptions.
+
+*   **Updating (Component Re-render):**
+    *   `static getDerivedStateFromProps()`
+    *   `shouldComponentUpdate()`: Performance optimization (rarely used with Hooks).
+    *   `render()`
+    *   `getSnapshotBeforeUpdate()`
+    *   `componentDidUpdate()`: Ideal for side effects after re-render (e.g., DOM manipulation, network requests based on state/props changes).
+
+*   **Unmounting (Component Removal from DOM):**
+    *   `componentWillUnmount()`: Ideal for cleanup (e.g., clearing timers, cancelling network requests, unsubscribing).
+
+*   **Error Handling:**
+    *   `static getDerivedStateFromError()`
+    *   `componentDidCatch()`
+
+### Virtual DOM
+
+A lightweight JavaScript representation of the actual DOM. React builds a virtual DOM tree to efficiently update the real DOM.
+
+*   When state or props change, React creates a new Virtual DOM tree.
+*   It then diffs (compares) the new Virtual DOM with the previous one.
+*   Only the necessary changes are batched and applied to the real DOM, optimizing performance.
+
+### Reconciliation
+
+The process by which React updates the actual DOM to match the Virtual DOM. React's diffing algorithm intelligently determines the minimal set of changes needed.
+
+### Unidirectional Data Flow
+
+React adheres to a one-way data flow model. Data typically flows down from parent components to child components via props. This makes it easier to reason about how data changes and reduces potential bugs.
+
+---
+
+## 3. Hooks
+
+Hooks are functions that let you "hook into" React state and lifecycle features from functional components. They were introduced in React 16.8.
+
+*   **Rules of Hooks:**
+    *   Only call Hooks at the top level of a functional component or custom Hook. Don't call them inside loops, conditions, or nested functions.
+    *   Only call Hooks from React functional components or from custom Hooks. Don't call them from regular JavaScript functions.
+
+### `useState`
+
+Allows functional components to have state. Returns a stateful value and a function to update it.
+
+```javascript
+import React, { useState } from "react";
+
+function Toggle() {
+  const [isOn, setIsOn] = useState(false);
+
+  const toggleHandler = () => {
+    setIsOn((prevIsOn) => !prevIsOn);
+  };
+
+  return (
+    <div>
+      <p>{isOn ? "On" : "Off"}</p>
+      <button onClick={toggleHandler}>Toggle</button>
+    </div>
+  );
+}
+```
+
+### `useEffect`
+
+Allows functional components to perform side effects (data fetching, subscriptions, manual DOM manipulations, timers) after rendering. Replaces `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount` from class components.
+
+*   **Syntax:**
+    ```javascript
+    useEffect(() => {
+      // Effect logic (runs after every render by default)
+
+      return () => {
+        // Optional cleanup function (runs before the effect re-runs or component unmounts)
+      };
+    }, [dependencies]); // Optional dependency array
+    ```
+
+*   **Examples:**
+
+    *   **Run once on mount (empty dependency array `[]`):**
+        ```javascript
+        useEffect(() => {
+          console.log("Component mounted!");
+          // Fetch data, set up event listeners
+          return () => {
+            console.log("Component unmounted!"); // Cleanup
+          };
+        }, []);
+        ```
+
+    *   **Run on specific dependency change:**
+        ```javascript
+        import React, { useState, useEffect } from "react";
+
+        function Profile({ userId }) {
+          const [userData, setUserData] = useState(null);
+
+          useEffect(() => {
+            console.log(`Fetching user data for userId: ${userId}`);
+            fetch(`/api/users/${userId}`)
+              .then((res) => res.json())
+              .then((data) => setUserData(data));
+
+            return () => {
+              // Cleanup if userId changes before fetch completes or component unmounts
+              console.log(`Cleaning up for userId: ${userId}`);
+            };
+          }, [userId]); // Effect re-runs if userId changes
+
+          return <div>{userData ? <p>User: {userData.name}</p> : <p>Loading...</p>}</div>;
+        }
+        ```
+
+    *   **Run on every render (no dependency array):** (Use with caution, can lead to infinite loops if not handled correctly with state updates)
+        ```javascript
+        useEffect(() => {
+          console.log("Component re-rendered!");
+        });
+        ```
+
+### `useContext`
+
+Allows functional components to consume context values provided by a `Context.Provider`.
+
+```javascript
+import React, { createContext, useContext } from "react";
+
+// 1. Create a Context
+const ThemeContext = createContext("light"); // Default value
+
+// 2. Provider Component
+function App() {
+  return (
+    <ThemeContext.Provider value="dark">
+      <Toolbar />
+    </ThemeContext.Provider>
+  );
+}
+
+// 3. Consumer Component (using useContext)
+function Toolbar() {
+  const theme = useContext(ThemeContext);
+  return <button style={{ background: theme === "dark" ? "#333" : "#FFF" }}>Current theme: {theme}</button>;
+}
+```
+
+### `useRef`
+
+Returns a mutable ref object whose `.current` property is initialized to the passed argument (`initialValue`). The returned ref object will persist for the full lifetime of the component. Commonly used for:
+
+*   Accessing DOM elements directly.
+*   Storing mutable values that don't cause a re-render when changed (e.g., timer IDs).
+
+```javascript
+import React, { useRef, useEffect } from "react";
+
+function MyInput() {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    // Focus the input element when the component mounts
+    inputRef.current.focus();
+  }, []);
+
+  return <input type="text" ref={inputRef} />;
+}
+```
+
+### `useReducer`
+
+An alternative to `useState` for more complex state logic that involves multiple sub-values or when the next state depends on the previous one. It's often preferred for state management that resembles Redux.
+
+*   **Syntax:** `const [state, dispatch] = useReducer(reducer, initialState);`
+*   `reducer`: A pure function that takes the current state and an action, and returns the new state.
+*   `initialState`: The initial state value.
+*   `dispatch`: A function that sends actions to the reducer.
+
+```javascript
+import React, { useReducer } from "react";
+
+const initialState = { count: 0 };
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "increment":
+      return { count: state.count + 1 };
+    case "decrement":
+      return { count: state.count - 1 };
+    case "reset":
+      return initialState;
+    default:
+      throw new Error();
+  }
+}
+
+function CounterWithReducer() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <>
+      Count: {state.count}
+      <button onClick={() => dispatch({ type: "increment" })}>+</button>
+      <button onClick={() => dispatch({ type: "decrement" })}>-</button>
+      <button onClick={() => dispatch({ type: "reset" })}>Reset</button>
+    </>
+  );
+}
+```
+
+### `useCallback`
+
+Returns a memoized callback function. Useful for preventing unnecessary re-renders of child components that rely on callback functions passed down from a parent.
+
+```javascript
+import React, { useState, useCallback } from "react";
+
+function ParentComponent() {
+  const [count, setCount] = useState(0);
+
+  // This function will only be re-created if 'count' changes
+  const handleClick = useCallback(() => {
+    setCount((prevCount) => prevCount + 1);
+  }, []); // Empty dependency array means it's only created once
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <ChildComponent onButtonClick={handleClick} />
+    </div>
+  );
+}
+
+// Child component (wrapped with React.memo for optimization)
+const ChildComponent = React.memo(({ onButtonClick }) => {
+  console.log("ChildComponent rendered"); // Will only log if onButtonClick (or other props) changes
+  return <button onClick={onButtonClick}>Increment from child</button>;
+});
+```
+
+### `useMemo`
+
+Returns a memoized value. Useful for optimizing expensive calculations by only re-computing the value when one of its dependencies changes.
+
+```javascript
+import React, { useState, useMemo } from "react";
+
+function ExpensiveCalculationComponent({ num }) {
+  // This calculation will only run if 'num' changes
+  const expensiveResult = useMemo(() => {
+    console.log("Performing expensive calculation...");
+    let result = 0;
+    for (let i = 0; i < num * 1000000; i++) {
+      result += i;
+    }
+    return result;
+  }, [num]);
+
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>Expensive Result: {expensiveResult}</p>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment Count (doesn't re-run expensive calc)</button>
+    </div>
+  );
+}
+```
+
+### Custom Hooks
+
+Functions that start with `use` and call other Hooks. They allow you to extract reusable stateful logic from components.
+
+```javascript
+import { useState, useEffect } from "react";
+
+function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        setData(result);
+      } catch (e) {
+        setError(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  return { data, loading, error };
+}
+
+// How to use the custom hook in a component:
+function UserProfile({ userId }) {
+  const { data: user, loading, error } = useFetch(`/api/users/${userId}`);
+
+  if (loading) return <div>Loading user...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!user) return null;
+
+  return (
+    <div>
+      <h2>{user.name}</h2>
+      <p>Email: {user.email}</p>
+    </div>
+  );
+}
+```
+
+---
+
+## 4. Styling in React
+
+Various approaches to styling React components.
+
+### Inline Styles
+
+CSS properties as JavaScript objects. Not ideal for complex styles but good for dynamic, component-specific styles.
+
+```jsx
+function MyComponent() {
+  const headerStyle = {
+    color: "blue",
+    fontSize: "24px",
+    backgroundColor: "#eee",
+    padding: "10px",
+  };
+
+  return <h1 style={headerStyle}>Hello Styled World</h1>;
+}
+```
+
+### CSS Modules
+
+Create local scope for CSS classes to avoid global naming collisions. Each CSS class name is automatically hashed and made unique.
+
+*   `MyComponent.module.css`
+    ```css
+    .container {
+      background-color: lightblue;
+      padding: 20px;
+    }
+    .title {
+      color: darkblue;
+    }
+    ```
+*   `MyComponent.jsx`
+    ```jsx
+    import styles from "./MyComponent.module.css";
+
+    function MyComponent() {
+      return (
+        <div className={styles.container}>
+          <h1 className={styles.title}>Hello CSS Modules</h1>
+        </div>
+      );
+    }
+    ```
+
+### Styled Components (CSS-in-JS)
+
+Write actual CSS inside your JavaScript using tagged template literals. Generates unique class names on the fly.
+
+```jsx
+import styled from "styled-components";
+
+const StyledButton = styled.button`
+  background-color: #61dafb;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #21a1f1;
+  }
+`;
+
+function App() {
+  return <StyledButton>Click Me</StyledButton>;
+}
+```
+
+### Sass/Less
+
+Pre-processors that extend CSS with features like variables, nesting, and mixins. Requires build-tool configuration (e.g., `node-sass` or `less`).
+
+*   `styles.scss`
+    ```scss
+    $primary-color: #007bff;
+
+    .card {
+      border: 1px solid #ccc;
+      padding: 15px;
+      .card-title {
+        color: $primary-color;
+        font-size: 1.5em;
+      }
+    }
+    ```
+*   `MyComponent.jsx`
+    ```jsx
+    import "./styles.scss"; // Import compiled CSS or directly SCSS if configured
+
+    function MyComponent() {
+      return (
+        <div className="card">
+          <h2 className="card-title">Sass Card</h2>
+          <p>This component uses Sass.</p>
+        </div>
+      );
+    }
+    ```
+
+---
+
+## 5. Event Handling
+
+React events are synthetic events, similar to browser native events but normalized across different browsers.
+
+*   **CamelCase Naming:** Event handlers are named in camelCase (e.g., `onClick`, `onChange`).
+*   **Functions as Handlers:** Pass a function directly as the event handler.
+*   **`event` Object:** The synthetic event object is passed to the handler.
+
+```jsx
+import React, { useState } from "react";
+
+function ButtonClicker() {
+  const [message, setMessage] = useState("Click the button!");
+
+  const handleClick = (event) => {
+    // 'event' is the synthetic event object
+    console.log("Button clicked!", event.target.tagName);
+    setMessage("Button was clicked!");
+  };
+
+  const handleInputChange = (event) => {
+    console.log("Input value:", event.target.value);
+  };
+
+  return (
+    <div>
+      <p>{message}</p>
+      <button onClick={handleClick}>Click Me</button>
+      <br />
+      <input type="text" onChange={handleInputChange} placeholder="Type something..." />
+    </div>
+  );
+}
+```
+
+*   **Passing Arguments to Event Handlers:**
+    *   **Arrow function (recommended):**
+        ```jsx
+        <button onClick={() => handleDelete(id)}>Delete</button>
+        ```
+    *   **`.bind()` (less common with functional components):**
+        ```jsx
+        <button onClick={this.handleDelete.bind(this, id)}>Delete</button>
+        ```
+
+---
+
+## 6. Conditional Rendering
+
+Display different elements or components based on certain conditions.
+
+*   **`if` statements:**
+    ```jsx
+    function Greeting({ isLoggedIn }) {
+      if (isLoggedIn) {
+        return <UserGreeting />;
+      }
+      return <GuestGreeting />;
+    }
+
+    function UserGreeting() {
+      return <h1>Welcome back!</h1>;
+    }
+
+    function GuestGreeting() {
+      return <h1>Please sign up.</h1>;
+    }
+    ```
+*   **Ternary Operator (`condition ? true : false`):**
+    ```jsx
+    function Greeting({ isLoggedIn }) {
+      return isLoggedIn ? <UserGreeting /> : <GuestGreeting />;
+    }
+    ```
+*   **Logical `&&` Operator (for rendering nothing or only one element):**
+    ```jsx
+    function Mailbox({ unreadMessages }) {
+      return (
+        <div>
+          <h1>Hello!</h1>
+          {unreadMessages.length > 0 && (
+            <h2>You have {unreadMessages.length} unread messages.</h2>
+          )}
+        </div>
+      );
+    }
+    ```
+
+---
+
+## 7. List Rendering
+
+Rendering collections of elements.
+
+*   **`map()` function:** The most common way to render lists. Always provide a unique `key` prop for each item.
+    *   **`key` Prop:** Helps React identify which items have changed, been added, or been removed. Improves performance and prevents issues. Should be a stable, unique ID (e.g., database ID). Using index as a key is generally discouraged unless the list is static and never reordered/filtered.
+
+```jsx
+function NumberList({ numbers }) {
+  const listItems = numbers.map((number) => (
+    <li key={number.toString()}>{number}</li> // Using number itself as key assuming it's unique
+  ));
+  return <ul>{listItems}</ul>;
+}
+
+const numbers = [1, 2, 3, 4, 5];
+// <NumberList numbers={numbers} />
+```
+
+```jsx
+function TodoList({ todos }) {
+  return (
+    <ul>
+      {todos.map((todo) => (
+        <li key={todo.id}>
+          {todo.text} {todo.completed ? "(Completed)" : ""}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const myTodos = [
+  { id: 1, text: "Learn React", completed: false },
+  { id: 2, text: "Build a project", completed: true },
+  { id: 3, text: "Deploy app", completed: false },
+];
+// <TodoList todos={myTodos} />
+```
+
+---
+
+## 8. Forms
+
+Managing user input in forms.
+
+### Controlled Components
+
+Form elements whose values are controlled by React state. The state is the "single source of truth."
+
+*   The input's `value` is set by state.
+*   `onChange` event handler updates the state.
+
+```jsx
+import React, { useState } from "react";
+
+function NameForm() {
+  const [name, setName] = useState("");
+
+  const handleChange = (event) => {
+    setName(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault(); // Prevent default browser form submission
+    alert("A name was submitted: " + name);
+    setName(""); // Clear the input after submission
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Name:
+        <input type="text" value={name} onChange={handleChange} />
+      </label>
+      <button type="submit">Submit</button>
+      <p>Current input: {name}</p>
+    </form>
+  );
+}
+```
+
+### Uncontrolled Components
+
+Form elements whose values are managed by the DOM itself. You access their values using `useRef` (or `ref` prop in class components). Generally less common, but useful for simple forms or integrating with third-party DOM libraries.
+
+```jsx
+import React, { useRef } from "react";
+
+function UncontrolledForm() {
+  const nameInputRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    alert("Name: " + nameInputRef.current.value);
+    alert("File: " + fileInputRef.current.files[0].name);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Name:
+        <input type="text" ref={nameInputRef} />
+      </label>
+      <br />
+      <label>
+        Upload File:
+        <input type="file" ref={fileInputRef} />
+      </label>
+      <br />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+---
+
+## 9. Context API
+
+Provides a way to pass data deeply through the component tree without manually passing props down at every level. Useful for "global" data like themes, authenticated user, or language preferences.
+
+*   `React.createContext()`: Creates a Context object.
+*   `Context.Provider`: Provides the context `value` to its descendant components.
+*   `useContext()` Hook: Consumes the context value in functional components.
+*   `Context.Consumer` (Legacy): Consumes context in class components (or older functional components).
+
+```javascript
+// 1. Create Context
+import React, { createContext, useContext, useState } from "react";
+
+const UserContext = createContext(null); // Default value can be anything
+
+// 2. Provider Component
+function App() {
+  const [currentUser, setCurrentUser] = useState({ name: "Alice", role: "admin" });
+
+  return (
+    <UserContext.Provider value={currentUser}>
+      <Navbar />
+      <Dashboard />
+    </UserContext.Provider>
+  );
+}
+
+// 3. Consumer Component (using useContext Hook)
+function Navbar() {
+  const user = useContext(UserContext); // Access the value provided by UserContext.Provider
+  return (
+    <nav style={{ background: "#f0f0f0", padding: "10px" }}>
+      Welcome, {user.name} ({user.role})
+    </nav>
+  );
+}
+
+function Dashboard() {
+  const user = useContext(UserContext);
+  return (
+    <div>
+      <h3>Dashboard for {user.name}</h3>
+      {user.role === "admin" && <p>Admin controls enabled.</p>}
+    </div>
+  );
+}
+```
+
+---
+
+## 10. Error Boundaries
+
+React components that catch JavaScript errors anywhere in their child component tree, log those errors, and display a fallback UI instead of the crashed component tree.
+
+*   Only class components can be error boundaries.
+*   They catch errors during rendering, in lifecycle methods, and in constructors of the whole tree below them.
+*   They **do not** catch errors in:
+    *   Event handlers (use `try...catch` blocks for these).
+    *   Asynchronous code (e.g., `setTimeout`, `requestAnimationFrame`).
+    *   Server-side rendering.
+    *   Errors thrown in the error boundary itself.
+
+```javascript
+import React from "react";
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // You can also log the error to an error reporting service
+    console.error("ErrorBoundary caught an error: ", error, errorInfo);
+    this.setState({
+      error: error,
+      errorInfo: errorInfo,
+    });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return (
+        <div>
+          <h1>Something went wrong.</h1>
+          {this.props.showDetails && (
+            <details style={{ whiteSpace: "pre-wrap" }}>
+              {this.state.error && this.state.error.toString()}
+              <br />
+              {this.state.errorInfo.componentStack}
+            </details>
+          )}
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// How to use:
+function App() {
+  return (
+    <div>
+      <ErrorBoundary showDetails={true}>
+        <BuggyComponent />
+      </ErrorBoundary>
+      <p>This part of the app will not crash if BuggyComponent fails.</p>
+    </div>
+  );
+}
+
+function BuggyComponent() {
+  // Simulate an error
+  const [count, setCount] = React.useState(0);
+  if (count === 3) {
+    throw new Error("I crashed!");
+  }
+  return <h1 onClick={() => setCount(count + 1)}>Click me to crash: {count}</h1>;
+}
+```
+
+---
+
+## 11. Portals
+
+Provide a way to render children into a DOM node that exists outside the DOM hierarchy of the parent component. Useful for modals, tooltips, or components that need to break out of their parent's CSS (e.g., `overflow: hidden`).
+
+```javascript
+import React from "react";
+import ReactDOM from "react-dom";
+
+function Modal({ children, isOpen, onClose }) {
+  if (!isOpen) return null;
+
+  return ReactDOM.createPortal(
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1000,
+      }}
+    >
+      <div
+        style={{
+          background: "white",
+          padding: "20px",
+          borderRadius: "5px",
+          position: "relative",
+        }}
+      >
+        <button
+          onClick={onClose}
+          style={{ position: "absolute", top: "10px", right: "10px" }}
+        >
+          X
+        </button>
+        {children}
+      </div>
+    </div>,
+    document.getElementById("modal-root") // This is the DOM node where the modal will be rendered
+  );
+}
+
+// In your index.html, make sure you have:
+// <div id="root"></div>
+// <div id="modal-root"></div>
+
+// How to use:
+function App() {
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+
+  return (
+    <div>
+      <h1>My App</h1>
+      <button onClick={() => setIsModalOpen(true)}>Open Modal</button>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <h2>Modal Title</h2>
+        <p>This content is rendered outside the normal DOM hierarchy.</p>
+      </Modal>
+    </div>
+  );
+}
+```
+
+---
+
+## 12. Fragments
+
+Allow you to group a list of children without adding extra nodes to the DOM.
+
+*   Shorthand syntax: `<></>`
+*   Long form: `<React.Fragment></React.Fragment>` (useful if you need to pass a `key` prop, e.g., in list rendering)
+
+```jsx
+// Before (introduces an unnecessary <div>)
+function ColumnsOld() {
+  return (
+    <div>
+      <td>Hello</td>
+      <td>World</td>
+    </div>
+  );
+}
+
+// After (no extra DOM node)
+function ColumnsNew() {
+  return (
+    <>
+      <td>Hello</td>
+      <td>World</td>
+    </>
+  );
+}
+
+// With key (for list rendering)
+function ListItem({ item }) {
+  return (
+    <React.Fragment key={item.id}>
+      <h2>{item.title}</h2>
+      <p>{item.description}</p>
+    </React.Fragment>
+  );
+}
+```
+
+---
+
+## 13. Higher-Order Components (HOCs)
+
+A function that takes a component as an argument and returns a new component with enhanced functionality. Used for cross-cutting concerns (e.g., authentication, data loading, logging).
+
+*   **Pattern:** `const NewComponent = HOC(OriginalComponent);`
+*   Less common with Hooks, which often provide more direct ways to reuse logic.
+
+```javascript
+import React, { useState, useEffect } from "react";
+
+// HOC: withData fetches data and passes it as a prop
+function withData(WrappedComponent, url) {
+  return function WithDataComponent(props) {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Network response was not ok.");
+          const result = await response.json();
+          setData(result);
+        } catch (err) {
+          setError(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
+    }, [url]);
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error.message}</div>;
+
+    return <WrappedComponent data={data} {...props} />;
+  };
+}
+
+// Original component
+function UserList({ data, title }) {
+  return (
+    <div>
+      <h2>{title}</h2>
+      <ul>
+        {data.map((user) => (
+          <li key={user.id}>{user.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// Enhanced component
+const EnhancedUserList = withData(UserList, "/api/users");
+
+// Usage
+function App() {
+  return <EnhancedUserList title="All Users" />;
+}
+```
+
+---
+
+## 14. Render Props
+
+A technique for sharing code between React components using a prop whose value is a function. The component with the render prop calls the function with its internal state or logic, and the consumer component uses this function to render its own content.
+
+*   Less common with Hooks, but still a valid pattern.
+
+```javascript
+import React, { useState, useEffect } from "react";
+
+// Component with a render prop
+function DataFetcher({ url, render }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Network response was not ok.");
+        const result = await response.json();
+        setData(result);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [url]);
+
+  return render({ data, loading, error }); // Call the render prop with the state
+}
+
+// Usage with a render prop
+function UserDashboard() {
+  return (
+    <DataFetcher
+      url="/api/users"
+      render={({ data, loading, error }) => {
+        if (loading) return <div>Loading users...</div>;
+        if (error) return <div>Error: {error.message}</div>;
+        if (!data) return null;
+
+        return (
+          <div>
+            <h2>User Dashboard</h2>
+            <ul>
+              {data.map((user) => (
+                <li key={user.id}>{user.name}</li>
+              ))}
+            </ul>
+          </div>
+        );
+      }}
+    />
+  );
+}
+```
+
+---
+
+## 15. Performance Optimization
+
+Techniques to improve the rendering performance of React applications.
+
+### `React.memo`
+
+A higher-order component that memoizes functional components. It prevents a component from re-rendering if its props have not changed. Similar to `shouldComponentUpdate` for class components.
+
+```javascript
+const MyComponent = React.memo(function MyComponent(props) {
+  /* render using props */
+  console.log("MyComponent is re-rendering");
+  return <div>{props.value}</div>;
+});
+
+// To prevent re-renders, the parent must pass stable props (e.g., using useCallback/useMemo for functions/objects).
+```
+
+### `useCallback` and `useMemo`
+
+As described in the Hooks section, these hooks help prevent unnecessary re-renders of child components by providing stable references to functions and values.
+
+### Lazy Loading / Code Splitting
+
+Splitting your application's code into smaller chunks that are loaded on demand. This improves the initial loading time.
+
+*   `React.lazy()`: For dynamic import of components.
+*   `Suspense`: Renders a fallback UI (e.g., a loading spinner) while a lazy component is loading.
+
+```javascript
+import React, { Suspense } from "react";
+
+const LazyComponent = React.lazy(() => import("./LazyComponent")); // Dynamic import
+
+function App() {
+  const [showLazy, setShowLazy] = React.useState(false);
+
+  return (
+    <div>
+      <h1>Main App</h1>
+      <button onClick={() => setShowLazy(true)}>Load Lazy Component</button>
+
+      {showLazy && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <LazyComponent />
+        </Suspense>
+      )}
+    </div>
+  );
+}
+
+// LazyComponent.jsx
+// export default function LazyComponent() {
+//   return <h2>I am a lazily loaded component!</h2>;
+// }
+```
+
+### Profiler
+
+A component available in `react-dom/profiling` that measures how often a React application renders and what the "cost" of rendering is. Used in development to identify performance bottlenecks.
+
+```jsx
+import React, { Profiler } from "react";
+
+function onRender(
+  id, // the "id" prop of the Profiler tree that has just committed
+  phase, // either "mount" (if the tree just mounted) or "update" (if it re-rendered)
+  actualDuration, // time spent rendering the committed update
+  baseDuration, // estimated time to render without memoization
+  startTime, // when React began rendering this update
+  commitTime, // when React committed this update
+  lastStartTime, // the start time of the last committed update
+  // eslint-disable-next-line no-unused-vars
+  _passiveEffectsStartTime, // the start time of the last passives commit
+  // eslint-disable-next-line no-unused-vars
+  _passiveEffectsDuration // the duration of the last passives commit
+) {
+  console.log(
+    `ID: ${id}, Phase: ${phase}, Actual Duration: ${actualDuration.toFixed(
+      2
+    )}ms`
+  );
+}
+
+function App() {
+  return (
+    <Profiler id="Application" onRender={onRender}>
+      <MyComponent />
+    </Profiler>
+  );
+}
+```
+
+---
+
+## 16. Testing React Applications
+
+Common strategies and tools for testing React components.
+
+### Unit Testing
+
+Testing individual components in isolation.
+*   **Tools:** Jest (testing framework), React Testing Library (for interacting with components like a user).
+*   **Focus:** What the component renders, how it responds to user interaction, and prop changes.
+
+```javascript
+// Example using Jest and React Testing Library
+import { render, screen, fireEvent } from "@testing-library/react";
+import ButtonClicker from "./ButtonClicker"; // Assuming the component from Event Handling section
+
+test("ButtonClicker displays initial message and updates on click", () => {
+  render(<ButtonClicker />);
+
+  // Check initial state
+  expect(screen.getByText(/Click the button!/i)).toBeInTheDocument();
+
+  // Simulate a click
+  fireEvent.click(screen.getByRole("button", { name: /click me/i }));
+
+  // Check updated state
+  expect(screen.getByText(/Button was clicked!/i)).toBeInTheDocument();
+});
+```
+
+### Integration Testing
+
+Testing how multiple components work together.
+*   **Tools:** Jest, React Testing Library.
+*   **Focus:** Flow of data between components, interaction of multiple components.
+
+### End-to-End Testing (E2E)
+
+Testing the entire application from a user's perspective in a real browser environment.
+*   **Tools:** Cypress, Playwright, Selenium.
+*   **Focus:** Full user flows, API integrations, and overall system functionality.
+
+---
+
+## 17. React Router
+
+A popular library for declarative routing in React applications. Allows for navigation between different views based on URLs.
+
+*   `BrowserRouter`: Uses the HTML5 history API for clean URLs.
+*   `Routes`: A container for `Route` components.
+*   `Route`: Defines a path and the component to render when that path matches.
+*   `Link`: For declarative navigation (prevents full page reloads).
+*   `useNavigate` (Hook): For programmatic navigation.
+*   `useParams` (Hook): To access URL parameters.
+
+```jsx
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useParams } from "react-router-dom";
+
+function Home() {
+  return <h2>Home Page</h2>;
+}
+
+function About() {
+  return <h2>About Page</h2>;
+}
+
+function Users() {
+  return (
+    <div>
+      <h2>Users</h2>
+      <ul>
+        <li>
+          <Link to="/users/1">User 1</Link>
+        </li>
+        <li>
+          <Link to="/users/2">User 2</Link>
+        </li>
+      </ul>
+    </div>
+  );
+}
+
+function UserDetail() {
+  const { id } = useParams(); // Get parameter from URL
+  const navigate = useNavigate(); // For programmatic navigation
+
+  const goToHome = () => {
+    navigate("/");
+  };
+
+  return (
+    <div>
+      <h3>User Detail for ID: {id}</h3>
+      <button onClick={goToHome}>Go to Home</button>
+    </div>
+  );
+}
+
+function NotFound() {
+  return <h2>404 Not Found</h2>;
+}
+
+function AppRouter() {
+  return (
+    <Router>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/about">About</Link>
+          </li>
+          <li>
+            <Link to="/users">Users</Link>
+          </li>
+        </ul>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/users/:id" element={<UserDetail />} />
+        <Route path="*" element={<NotFound />} /> {/* Catch-all for 404 */}
+      </Routes>
+    </Router>
+  );
+}
+
+export default AppRouter;
+```
+
+---
+
+## 18. State Management Libraries (Brief Mention)
+
+For large and complex applications, managing global state can become challenging. These libraries offer more robust solutions than React's built-in Context API for certain use cases.
+
+### Redux
+
+A predictable state container for JavaScript apps.
+*   **Core Principles:** Single source of truth (single store), state is read-only, changes are made with pure functions (reducers).
+*   **Concepts:** Actions, Reducers, Store, Dispatch, Selectors.
+*   **Ecosystem:** `react-redux` (React bindings), Redux Toolkit (recommended modern way to use Redux).
+
+### MobX
+
+Simple, scalable state management. Uses observable data and reactions.
+*   More imperative and less boilerplate than Redux.
+
+### Zustand
+
+A small, fast, and scalable bearbones state-management solution using nothing but React hooks.
+*   Minimalist API, often praised for its simplicity.
+
+### Jotai
+
+A primitive and flexible state management library for React.
+*   Inspired by Recoil, focuses on atomic state management.
+
+---
+
+## 19. Next.js (Brief Mention)
+
+A popular React framework built on top of React for building production-ready applications. It provides features like:
+
+*   **Server-Side Rendering (SSR):** Render React components on the server.
+*   **Static Site Generation (SSG):** Pre-render pages at build time.
+*   **API Routes:** Build backend APIs directly within your Next.js project.
+*   **File-system Routing:** Pages are automatically routed based on their file names.
+*   **Image Optimization:** Built-in image optimization.
+*   **Fast Refresh:** Instant feedback on code changes.
+
+---
+
+## 20. TypeScript with React
+
+Using TypeScript with React enhances type safety and developer experience.
+
+*   **Type Props:** Define prop interfaces.
+    ```typescript
+    interface WelcomeProps {
+      name: string;
+      age?: number; // Optional prop
+    }
+
+    const Welcome: React.FC<WelcomeProps> = ({ name, age }) => {
+      return (
+        <h1>
+          Hello, {name}! {age && `You are ${age} years old.`}
+        </h1>
+      );
+    };
+    ```
+*   **Type State (with `useState`):**
+    ```typescript
+    interface User {
+      id: number;
+      name: string;
+      email: string;
+    }
+
+    function UserProfile() {
+      const [user, setUser] = useState<User | null>(null); // State can be User or null
+      const [loading, setLoading] = useState<boolean>(true);
+
+      // ... fetch data and set user/loading
+    }
+    ```
+*   **Type Event Handlers:**
+    ```typescript
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      console.log(event.target.value);
+    };
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+      console.log("Button clicked!");
+    };
+    ```
+*   **Type Custom Hooks:**
+    ```typescript
+    interface UseFetchResult<T> {
+      data: T | null;
+      loading: boolean;
+      error: Error | null;
+    }
+
+    function useFetch<T>(url: string): UseFetchResult<T> {
+      // ... implementation
+      return { data, loading, error };
+    }
+    ```
+
+---
+
+## 21. Strict Mode
+
+A tool for highlighting potential problems in an application. It doesn't render any visible UI. It activates additional checks and warnings for its descendants.
+
+*   Detects common mistakes like using legacy string ref APIs.
+*   Warns about deprecated lifecycle methods in class components.
+*   Detects unexpected side effects (by double-invoking effects, constructors, etc., in development).
+
+```jsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+```

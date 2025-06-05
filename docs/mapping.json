@@ -4,5 +4,6 @@
 		"full": "typescript-full.txt",
 		"tiny": "typescript-tiny.txt"
 	},
-	"zod": { "full": "zod-full.txt", "tiny": "zod-tiny.txt" }
+	"zod": { "full": "zod-full.txt", "tiny": "zod-tiny.txt" },
+	"react": { "full": "react-full.txt", "tiny": "react-tiny.txt" }
 }
