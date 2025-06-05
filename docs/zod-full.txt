@@ -1,0 +1,739 @@
+# Zod Documentation Reference
+
+## Installation & Import
+
+```typescript
+npm install zod
+import { z } from "zod";
+```
+
+## Basic Usage
+
+```typescript
+// Creating a schema
+const User = z.object({
+  username: z.string(),
+  age: z.number(),
+});
+
+// Parse data
+const userData = User.parse({
+  username: "john",
+  age: 30,
+});
+
+// Safe parse (returns result object)
+const result = User.safeParse({
+  username: "john",
+  age: 30,
+});
+
+if (result.success) {
+  console.log(result.data);
+} else {
+  console.log(result.error);
+}
+
+// Type inference
+type User = z.infer<typeof User>; // { username: string; age: number; }
+```
+
+## Primitive Types
+
+```typescript
+// String
+const stringSchema = z.string();
+const nonEmptyString = z.string().min(1);
+const email = z.string().email();
+const url = z.string().url();
+const uuid = z.string().uuid();
+const cuid = z.string().cuid();
+const cuid2 = z.string().cuid2();
+const ulid = z.string().ulid();
+const regex = z.string().regex(/^[a-z]+$/);
+const datetime = z.string().datetime();
+const ip = z.string().ip();
+const emoji = z.string().emoji();
+
+// Number
+const numberSchema = z.number();
+const positiveNumber = z.number().positive();
+const negativeNumber = z.number().negative();
+const nonnegative = z.number().nonnegative();
+const nonpositive = z.number().nonpositive();
+const integer = z.number().int();
+const finite = z.number().finite();
+const safe = z.number().safe();
+const multipleOf = z.number().multipleOf(5);
+const range = z.number().min(5).max(10);
+
+// BigInt
+const bigintSchema = z.bigint();
+const positiveBigint = z.bigint().positive();
+const negativeBigint = z.bigint().negative();
+const nonnegativeBigint = z.bigint().nonnegative();
+const nonpositiveBigint = z.bigint().nonpositive();
+const multipleOfBigint = z.bigint().multipleOf(5n);
+
+// Boolean
+const booleanSchema = z.boolean();
+
+// Date
+const dateSchema = z.date();
+const minDate = z.date().min(new Date("1900-01-01"));
+const maxDate = z.date().max(new Date("2100-01-01"));
+
+// Symbol
+const symbolSchema = z.symbol();
+
+// Undefined
+const undefinedSchema = z.undefined();
+
+// Null
+const nullSchema = z.null();
+
+// Void
+const voidSchema = z.void();
+
+// Any
+const anySchema = z.any();
+
+// Unknown
+const unknownSchema = z.unknown();
+
+// Never
+const neverSchema = z.never();
+```
+
+## String Validations
+
+```typescript
+// Length constraints
+z.string().min(5); // min 5 characters
+z.string().max(10); // max 10 characters
+z.string().length(5); // exactly 5 characters
+
+// Format validations
+z.string().email("Invalid email address");
+z.string().url("Invalid URL");
+z.string().emoji("Invalid emoji");
+z.string().uuid("Invalid UUID");
+z.string().cuid("Invalid CUID");
+z.string().cuid2("Invalid CUID2");
+z.string().ulid("Invalid ULID");
+z.string().regex(/^\d+$/, "Must contain only numbers");
+z.string().includes("hello", { message: "Must include hello" });
+z.string().startsWith("https://", { message: "Must start with https://" });
+z.string().endsWith(".com", { message: "Must end with .com" });
+z.string().datetime({ message: "Invalid datetime string!" });
+z.string().ip({ version: "v4", message: "Invalid IP address" });
+
+// String transformations
+z.string().trim(); // Remove whitespace
+z.string().toLowerCase(); // Convert to lowercase
+z.string().toUpperCase(); // Convert to uppercase
+
+// Custom validations
+z.string().refine((val) => val.length >= 8, {
+  message: "Password must be at least 8 characters",
+});
+```
+
+## Number Validations
+
+```typescript
+z.number().gt(5); // Greater than 5
+z.number().gte(5); // Greater than or equal to 5
+z.number().lt(10); // Less than 10
+z.number().lte(10); // Less than or equal to 10
+z.number().int(); // Must be integer
+z.number().positive(); // Must be positive
+z.number().nonnegative(); // Must be >= 0
+z.number().negative(); // Must be negative
+z.number().nonpositive(); // Must be <= 0
+z.number().multipleOf(5); // Must be multiple of 5
+z.number().finite(); // Must be finite
+z.number().safe(); // Must be safe integer
+```
+
+## Objects
+
+```typescript
+// Basic object
+const User = z.object({
+  name: z.string(),
+  age: z.number(),
+});
+
+// Nested objects
+const UserWithAddress = z.object({
+  name: z.string(),
+  address: z.object({
+    street: z.string(),
+    city: z.string(),
+    zipCode: z.string(),
+  }),
+});
+
+// Optional properties
+const OptionalUser = z.object({
+  name: z.string(),
+  age: z.number().optional(),
+  email: z.string().optional(),
+});
+
+// Nullable properties
+const NullableUser = z.object({
+  name: z.string(),
+  middleName: z.string().nullable(),
+});
+
+// Default values
+const UserWithDefaults = z.object({
+  name: z.string(),
+  role: z.string().default("user"),
+  isActive: z.boolean().default(true),
+});
+
+// Object methods
+User.shape; // Access individual field schemas
+User.keyof(); // Get schema for object keys
+User.extend({ email: z.string() }); // Add fields
+User.merge(OtherSchema); // Merge with another object schema
+User.pick({ name: true }); // Pick specific fields
+User.omit({ age: true }); // Omit specific fields
+User.partial(); // Make all fields optional
+User.deepPartial(); // Make all fields optional recursively
+User.required(); // Make all fields required
+User.passthrough(); // Allow unknown keys
+User.strict(); // Disallow unknown keys (default)
+User.strip(); // Remove unknown keys
+User.catchall(z.string()); // Schema for unknown keys
+
+// Recursive types
+type Category = {
+  name: string;
+  subcategories: Category[];
+};
+
+const Category: z.ZodType<Category> = z.lazy(() =>
+  z.object({
+    name: z.string(),
+    subcategories: z.array(Category),
+  })
+);
+```
+
+## Arrays
+
+```typescript
+// Basic array
+const stringArray = z.array(z.string());
+const numberArray = z.array(z.number());
+
+// Array constraints
+z.array(z.string()).min(1); // At least 1 element
+z.array(z.string()).max(10); // At most 10 elements
+z.array(z.string()).length(5); // Exactly 5 elements
+z.array(z.string()).nonempty(); // At least 1 element
+
+// Array of objects
+const userArray = z.array(
+  z.object({
+    name: z.string(),
+    age: z.number(),
+  })
+);
+
+// Nested arrays
+const matrix = z.array(z.array(z.number()));
+```
+
+## Tuples
+
+```typescript
+// Basic tuple
+const coordinates = z.tuple([z.number(), z.number()]);
+
+// Mixed types tuple
+const mixedTuple = z.tuple([z.string(), z.number(), z.boolean()]);
+
+// Optional elements
+const optionalTuple = z.tuple([z.string(), z.number().optional()]);
+
+// Rest elements
+const restTuple = z.tuple([z.string()]).rest(z.number());
+```
+
+## Unions
+
+```typescript
+// Basic union
+const stringOrNumber = z.union([z.string(), z.number()]);
+
+// Multiple types union
+const Status = z.union([
+  z.literal("pending"),
+  z.literal("approved"),
+  z.literal("rejected"),
+]);
+
+// Discriminated union
+const Shape = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("circle"), radius: z.number() }),
+  z.object({ kind: z.literal("square"), sideLength: z.number() }),
+  z.object({ kind: z.literal("rectangle"), width: z.number(), height: z.number() }),
+]);
+```
+
+## Intersections
+
+```typescript
+const Name = z.object({ name: z.string() });
+const Age = z.object({ age: z.number() });
+
+const Person = z.intersection(Name, Age);
+// Equivalent to: z.object({ name: z.string(), age: z.number() })
+
+// Multiple intersections
+const Address = z.object({ address: z.string() });
+const PersonWithAddress = Name.and(Age).and(Address);
+```
+
+## Literals
+
+```typescript
+// String literals
+const redLiteral = z.literal("red");
+const blueLiteral = z.literal("blue");
+
+// Number literals
+const twoLiteral = z.literal(2);
+const threeLiteral = z.literal(3);
+
+// Boolean literals
+const trueLiteral = z.literal(true);
+const falseLiteral = z.literal(false);
+
+// Combined literals
+const Color = z.union([
+  z.literal("red"),
+  z.literal("green"),
+  z.literal("blue"),
+]);
+```
+
+## Enums
+
+```typescript
+// Native enums
+enum Fruits {
+  Apple = "apple",
+  Banana = "banana",
+  Orange = "orange",
+}
+
+const FruitEnum = z.nativeEnum(Fruits);
+
+// Zod enums
+const FruitEnum2 = z.enum(["apple", "banana", "orange"]);
+
+// Accessing enum values
+FruitEnum2.enum.apple; // "apple"
+FruitEnum2.options; // ["apple", "banana", "orange"]
+```
+
+## Records
+
+```typescript
+// Basic record
+const stringRecord = z.record(z.string());
+const numberRecord = z.record(z.number());
+
+// Record with specific keys
+const UserRecord = z.record(z.string(), z.number());
+
+// Complex record
+const ComplexRecord = z.record(
+  z.string(),
+  z.object({
+    name: z.string(),
+    age: z.number(),
+  })
+);
+```
+
+## Maps and Sets
+
+```typescript
+// Maps
+const stringNumberMap = z.map(z.string(), z.number());
+
+// Sets
+const stringSet = z.set(z.string());
+const numberSet = z.set(z.number());
+
+// Set constraints
+z.set(z.string()).min(1); // At least 1 element
+z.set(z.string()).max(10); // At most 10 elements
+z.set(z.string()).size(5); // Exactly 5 elements
+```
+
+## Functions
+
+```typescript
+// Basic function
+const myFunction = z.function();
+
+// Function with arguments and return type
+const addFunction = z
+  .function()
+  .args(z.number(), z.number())
+  .returns(z.number());
+
+// Function implementation
+const add = addFunction.implement((a, b) => a + b);
+
+// Validate function
+const isValidFunction = addFunction.validate((a, b) => a + b);
+```
+
+## Promises
+
+```typescript
+// Promise schema
+const stringPromise = z.promise(z.string());
+const numberPromise = z.promise(z.number());
+
+// Usage
+async function getData(): Promise<string> {
+  return "hello";
+}
+
+const result = await stringPromise.parseAsync(getData());
+```
+
+## Effects (Refinements & Transforms)
+
+```typescript
+// Refinements
+const evenNumber = z.number().refine((n) => n % 2 === 0, {
+  message: "Number must be even",
+});
+
+const positiveNumber = z.number().refine((n) => n > 0, "Must be positive");
+
+// Multiple refinements
+const strongPassword = z
+  .string()
+  .min(8)
+  .refine((password) => /[A-Z]/.test(password), {
+    message: "Must contain uppercase letter",
+  })
+  .refine((password) => /[a-z]/.test(password), {
+    message: "Must contain lowercase letter",
+  })
+  .refine((password) => /\d/.test(password), {
+    message: "Must contain number",
+  });
+
+// Transforms
+const numberFromString = z.string().transform((val) => parseInt(val));
+const dateFromString = z.string().transform((str) => new Date(str));
+
+// Async refinements
+const uniqueEmail = z.string().email().refine(async (email) => {
+  const user = await getUserByEmail(email);
+  return !user;
+}, "Email already exists");
+
+// Superrefine (advanced)
+const passwordConfirmation = z
+  .object({
+    password: z.string(),
+    confirmPassword: z.string(),
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: "custom",
+        message: "The passwords did not match",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+```
+
+## Default Values
+
+```typescript
+const userSchema = z.object({
+  name: z.string(),
+  role: z.string().default("user"),
+  isActive: z.boolean().default(true),
+  createdAt: z.date().default(() => new Date()),
+});
+
+// Using defaults
+const user = userSchema.parse({ name: "John" });
+// { name: "John", role: "user", isActive: true, createdAt: Date }
+```
+
+## Optional and Nullable
+
+```typescript
+// Optional (value | undefined)
+const optionalString = z.string().optional();
+const optionalObject = z.object({
+  name: z.string(),
+  age: z.number().optional(),
+});
+
+// Nullable (value | null)
+const nullableString = z.string().nullable();
+
+// Both optional and nullable (value | null | undefined)
+const optionalNullableString = z.string().optional().nullable();
+const nullishString = z.string().nullish(); // Shorthand for above
+```
+
+## Coercion
+
+```typescript
+// String coercion
+const coercedString = z.coerce.string(); // Convert to string
+const coercedNumber = z.coerce.number(); // Convert to number
+const coercedBoolean = z.coerce.boolean(); // Convert to boolean
+const coercedDate = z.coerce.date(); // Convert to date
+const coercedBigint = z.coerce.bigint(); // Convert to bigint
+
+// Examples
+coercedString.parse(123); // "123"
+coercedNumber.parse("123"); // 123
+coercedBoolean.parse("true"); // true
+coercedDate.parse("2023-01-01"); // Date object
+```
+
+## Error Handling
+
+```typescript
+// Custom error message
+const schema = z.string({ message: "Expected string" });
+
+// Field-specific messages
+const userSchema = z.object({
+  name: z.string({ message: "Name is required" }),
+  age: z.number({ message: "Age must be a number" }),
+});
+
+// Global error map
+z.setErrorMap((issue, ctx) => {
+  if (issue.code === z.ZodIssueCode.invalid_type) {
+    if (issue.expected === "string") {
+      return { message: "Bad input: expected string" };
+    }
+  }
+  return { message: ctx.defaultError };
+});
+
+// Error types
+try {
+  schema.parse(invalidData);
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    error.issues.forEach((issue) => {
+      console.log(issue.code);
+      console.log(issue.path);
+      console.log(issue.message);
+    });
+  }
+}
+
+// Flatten errors
+const result = schema.safeParse(invalidData);
+if (!result.success) {
+  const flatErrors = result.error.flatten();
+  console.log(flatErrors.fieldErrors);
+  console.log(flatErrors.formErrors);
+}
+```
+
+## Parsing Methods
+
+```typescript
+const schema = z.string();
+
+// parse - throws on error
+const data1 = schema.parse("hello");
+
+// safeParse - returns result object
+const result = schema.safeParse("hello");
+if (result.success) {
+  console.log(result.data);
+} else {
+  console.log(result.error);
+}
+
+// parseAsync - for async schemas
+const asyncResult = await schema.parseAsync("hello");
+
+// safeParseAsync - safe async parsing
+const safeAsyncResult = await schema.safeParseAsync("hello");
+
+// spa - shorthand for safeParseAsync
+const spaResult = await schema.spa("hello");
+```
+
+## Type Guards
+
+```typescript
+const stringSchema = z.string();
+
+// Type guard function
+function isString(value: unknown): value is string {
+  return stringSchema.safeParse(value).success;
+}
+
+// Using with arrays
+const mixedArray = [1, "hello", true, "world"];
+const strings = mixedArray.filter(isString); // string[]
+```
+
+## Utilities
+
+```typescript
+// Type inference
+type User = z.infer<typeof userSchema>;
+type UserInput = z.input<typeof userSchema>; // Before transforms
+type UserOutput = z.output<typeof userSchema>; // After transforms
+
+// Schema composition
+const baseUser = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+
+const adminUser = baseUser.extend({
+  permissions: z.array(z.string()),
+});
+
+const publicUser = baseUser.omit({ id: true });
+
+// Preprocessing
+const preprocessedSchema = z.preprocess(
+  (input) => {
+    if (typeof input === "string") {
+      return input.trim();
+    }
+    return input;
+  },
+  z.string().min(1)
+);
+
+// Brand types
+const UserId = z.string().brand<"UserId">();
+type UserId = z.infer<typeof UserId>; // string & Brand<"UserId">
+
+// NEVER type
+const neverSchema = z.never();
+```
+
+## Advanced Patterns
+
+```typescript
+// Conditional schemas
+const conditionalSchema = z.union([
+  z.object({
+    type: z.literal("user"),
+    username: z.string(),
+  }),
+  z.object({
+    type: z.literal("admin"),
+    username: z.string(),
+    permissions: z.array(z.string()),
+  }),
+]);
+
+// Recursive schemas
+interface Node {
+  name: string;
+  children: Node[];
+}
+
+const NodeSchema: z.ZodType<Node> = z.lazy(() =>
+  z.object({
+    name: z.string(),
+    children: z.array(NodeSchema),
+  })
+);
+
+// Generic schemas
+function createArraySchema<T extends z.ZodTypeAny>(itemSchema: T) {
+  return z.array(itemSchema);
+}
+
+// Pipeline operator
+const pipeline = z
+  .string()
+  .transform((val) => val.trim())
+  .pipe(z.string().min(1))
+  .pipe(z.string().email());
+
+// Catch method
+const withCatch = z.string().catch("default");
+const result = withCatch.parse(undefined); // "default"
+
+// Readonly
+const readonlySchema = z.object({
+  name: z.string(),
+  age: z.number(),
+}).readonly();
+
+// Describe
+const describedSchema = z.string().describe("A user's name");
+```
+
+## Integration Examples
+
+```typescript
+// Express.js middleware
+import express from "express";
+
+const createUserSchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  age: z.number().min(18),
+});
+
+app.post("/users", (req, res) => {
+  try {
+    const userData = createUserSchema.parse(req.body);
+    // userData is fully typed and validated
+    const user = createUser(userData);
+    res.json(user);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ errors: error.issues });
+    }
+  }
+});
+
+// Form validation
+const loginForm = z.object({
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+// API response validation
+const apiResponseSchema = z.object({
+  data: z.array(z.object({
+    id: z.number(),
+    title: z.string(),
+    completed: z.boolean(),
+  })),
+  meta: z.object({
+    total: z.number(),
+    page: z.number(),
+  }),
+});
+```

@@ -1,6 +1,6 @@
 {
 	"name": "bunllm",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "A CLI tool that helps you add LLM documentation to your project based on your package.json dependencies",
 	"type": "module",
 	"main": "index.ts",
@@ -29,10 +29,11 @@
 		"@types/bun": "latest"
 	},
 	"peerDependencies": {
-		"typescript": "^5"
+		"typescript": "^5.8.3"
 	},
 	"dependencies": {
-		"@inquirer/prompts": "^3.3.0"
+		"@inquirer/prompts": "^3.3.2",
+		"zod": "^3.25.51"
 	},
 	"engines": {
 		"bun": ">=1.0.0"
