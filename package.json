@@ -1,6 +1,6 @@
 {
 	"name": "bunllm",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"description": "A CLI tool that helps you add LLM documentation to your project based on your package.json dependencies",
 	"type": "module",
 	"main": "index.ts",
